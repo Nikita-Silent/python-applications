@@ -151,7 +151,7 @@ def init_db():
         sys.exit(1)
 
 # Проверка сетевых интерфейсов и порта
-def log_network_interfaces(port=5001):
+def log_network_interfaces(port=5002):
     try:
         hostname = socket.gethostname()
         ip_addresses = socket.gethostbyname_ex(hostname)[2]
@@ -684,15 +684,15 @@ if __name__ == "__main__":
     try:
         logger.info("Инициализация базы данных PostgreSQL")
         init_db()
-        logger.info("Запуск Flask приложения на host='0.0.0.0', port=5001")
-        log_network_interfaces(port=5001)
+        logger.info("Запуск Flask приложения на host='0.0.0.0', port=5002")
+        log_network_interfaces(port=5002)
         
         # Запускаем фоновую задачу для обработки retry_queue
         retry_thread = threading.Thread(target=process_retry_queue, daemon=True)
         retry_thread.start()
         logger.info("Фоновая задача для retry_queue запущена")
         
-        app.run(debug=True, host='0.0.0.0', port=5001, use_reloader=False)
+        app.run(debug=True, host='0.0.0.0', port=5002, use_reloader=False)
     except Exception as e:
         logger.error(f"Ошибка при запуске приложения: {e}")
         sys.exit(1)
