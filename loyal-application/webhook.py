@@ -40,7 +40,7 @@ LISTMONK_USERNAME = os.getenv("LISTMONK_USERNAME", "api_username")
 LISTMONK_API_KEY = os.getenv("LISTMONK_API_KEY", "your-listmonk-api-key")
 
 # Конфиг для marketingcrm API
-MCRM_API_URL = os.getenv("MCRM_API_URL", "https://localhost")
+MCRM_API_URL_USER = os.getenv("MCRM_API_URL_USER", "https://localhost")
 MCRM_API_KEY = os.getenv("MCRM_API_KEY", "your-mcrm-api-key")
 
 # Конфиг для PostgreSQL
@@ -55,7 +55,7 @@ RETRY_INTERVAL = 300  # 5 минут
 MAX_RETRIES = 3  # Максимум 3 попытки
 
 # Логируем загрузку конфигурации
-logger.info(f"Инициализация приложения: WEBHOOK_USERNAME={WEBHOOK_USERNAME}, LISTMONK_API_URL={LISTMONK_API_URL}, MCRM_API_URL={MCRM_API_URL}, DB_HOST={DB_HOST}, DB_NAME={DB_NAME}")
+logger.info(f"Инициализация приложения: WEBHOOK_USERNAME={WEBHOOK_USERNAME}, LISTMONK_API_URL={LISTMONK_API_URL}, MCRM_API_URL_USER={MCRM_API_URL_USER}, DB_HOST={DB_HOST}, DB_NAME={DB_NAME}")
 
 # Подключение к PostgreSQL и создание таблиц
 def init_db():
@@ -339,14 +339,14 @@ def process_retry_queue():
                         # Запрос к MCRM
                         logger.info(f"Повторный запрос к MCRM: number={cleaned_serial}")
                         mcrm_response = requests.get(
-                            MCRM_API_URL,
+                            MCRM_API_URL_USER,
                             params={"number": cleaned_serial, "api_key": MCRM_API_KEY}
                         )
                         
                         if mcrm_response.status_code != 200:
                             logger.error(f"Ошибка повторного запроса MCRM: id={retry_id}, status_code={mcrm_response.status_code}")
                             log_error_to_db("mcrm_requests_log", {
-                                "url": MCRM_API_URL,
+                                "url": MCRM_API_URL_USER,
                                 "number": cleaned_serial,
                                 "status_code": mcrm_response.status_code,
                                 "response": mcrm_response.text,
@@ -363,7 +363,7 @@ def process_retry_queue():
                         if not mcrm_data.get('email'):
                             logger.error(f"Email не найден в MCRM: id={retry_id}")
                             log_error_to_db("mcrm_requests_log", {
-                                "url": MCRM_API_URL,
+                                "url": MCRM_API_URL_USER,
                                 "number": cleaned_serial,
                                 "status_code": mcrm_response.status_code,
                                 "response": mcrm_response.text,
@@ -537,10 +537,10 @@ def webhook():
             return jsonify({"error": "Ошибка обработки serial"}), 400
 
         # Запрос к marketingcrm API
-        logger.info(f"Отправка запроса к MCRM API: URL={MCRM_API_URL}, number={cleaned_serial}")
+        logger.info(f"Отправка запроса к MCRM API: URL={MCRM_API_URL_USER}, number={cleaned_serial}")
         try:
             mcrm_response = requests.get(
-                MCRM_API_URL,
+                MCRM_API_URL_USER,
                 params={
                     "number": cleaned_serial,
                     "api_key": MCRM_API_KEY
@@ -549,7 +549,7 @@ def webhook():
         except requests.RequestException as e:
             logger.error(f"Ошибка запроса к MCRM API: {e}")
             log_error_to_db("mcrm_requests_log", {
-                "url": MCRM_API_URL,
+                "url": MCRM_API_URL_USER,
                 "number": cleaned_serial,
                 "status_code": None,
                 "response": None,
@@ -562,7 +562,7 @@ def webhook():
         if mcrm_response.status_code != 200:
             logger.error(f"Ошибка запроса к MCRM API: status_code={mcrm_response.status_code}, response={mcrm_response.text}")
             log_error_to_db("mcrm_requests_log", {
-                "url": MCRM_API_URL,
+                "url": MCRM_API_URL_USER,
                 "number": cleaned_serial,
                 "status_code": mcrm_response.status_code,
                 "response": mcrm_response.text,
@@ -577,7 +577,7 @@ def webhook():
         if not mcrm_data.get('email'):
             logger.error(f"Email не найден в ответе MCRM: status={mcrm_data.get('status')}")
             log_error_to_db("mcrm_requests_log", {
-                "url": MCRM_API_URL,
+                "url": MCRM_API_URL_USER,
                 "number": cleaned_serial,
                 "status_code": mcrm_response.status_code,
                 "response": mcrm_response.text,

@@ -20,7 +20,7 @@ REQUIRED_ENV_VARS = [
     'LISTMONK_API_URL',
     'LISTMONK_API_USER',
     'LISTMONK_API_TOKEN',
-    'MCRM_API_URL',
+    'MCRM_API_URL_BONUS',
     'MCRM_API_TOKEN',
     'BONUS_SUM',
     'LIST_ID',
@@ -40,7 +40,7 @@ if missing_vars:
 LISTMONK_API_URL = os.getenv('LISTMONK_API_URL')
 LISTMONK_API_USER = os.getenv('LISTMONK_API_USER')
 LISTMONK_API_TOKEN = os.getenv('LISTMONK_API_TOKEN')
-MCRM_API_URL = os.getenv('MCRM_API_URL')
+MCRM_API_URL_BONUS = os.getenv('MCRM_API_URL_BONUS')
 MCRM_API_TOKEN = os.getenv('MCRM_API_TOKEN')
 BONUS_SUM = float(os.getenv('BONUS_SUM'))
 LIST_ID = int(os.getenv('LIST_ID'))
@@ -51,7 +51,7 @@ DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 
 # Логирование используемых параметров
-logger.info(f"Используемый MCRM_API_URL: {MCRM_API_URL}")
+logger.info(f"Используемый MCRM_API_URL_BONUS: {MCRM_API_URL_BONUS}")
 
 # Инициализация базы данных
 def init_db():
@@ -216,8 +216,8 @@ def add_bonus(phone, uid):
     }
     
     try:
-        logger.debug(f"Отправка запроса к MCRM API: URL={MCRM_API_URL}, headers={{'x-api-key': '***', 'Content-Type': 'application/json'}}, payload={payload}")
-        response = requests.post(MCRM_API_URL, headers=headers, json=payload)
+        logger.debug(f"Отправка запроса к MCRM API: URL={MCRM_API_URL_BONUS}, headers={{'x-api-key': '***', 'Content-Type': 'application/json'}}, payload={payload}")
+        response = requests.post(MCRM_API_URL_BONUS, headers=headers, json=payload)
         response.raise_for_status()
         logger.info(f"Бонусы начислены для телефона {phone}, UID: {uid}")
         return True
